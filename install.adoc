@@ -8,7 +8,7 @@ The necessary steps are:
  1. Setup Lattice
 
 
-___Please note___: Lattice cannot easily be used on Windows nor _any 32-bit platform_ because the `ltc` command-line utility is missing.  Windows users should see https://www.pivotaltracker.com/n/projects/1183596/stories/85921380 for progress on a Windows version.  In the meantime, the easiest solution is to run a Linux (eg. 64-bit Ubuntu) virtual machine on your Windows PC and follow the Linux instructions.
+___Please note___: Lattice cannot easily be used on Windows nor _any 32-bit platform_ because the `ltc` command-line utility is missing.  In the meantime, the easiest solution is to run a Linux (eg. 64-bit Ubuntu) virtual machine on your Windows PC and follow the Linux instructions.
 
 All the following is command-line driven. You will need to run a shell/Terminal window on Linux/MacOS.
 

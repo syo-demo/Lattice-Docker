@@ -1,0 +1,219 @@
+# Installation and Setup
+
+The necessary steps are:
+
+ 1. Install VirtualBox
+ 1. Install Vagrant
+ 1. Setup Docker
+ 1. Setup Lattice
+
+
+___Please note___: Lattice cannot easily be used on Windows nor _any 32-bit platform_ because the `ltc` command-line utility is missing.  Windows users should see https://www.pivotaltracker.com/n/projects/1183596/stories/85921380 for progress on a Windows version.  In the meantime, the easiest solution is to run a Linux (eg. 64-bit Ubuntu) virtual machine on your Windows PC and follow the Linux instructions.
+
+All the following is command-line driven. You will need to run a shell/Terminal window on Linux/MacOS.
+
+## VirtualBox
+
+VirtualBox allows virtual machiness to run on Linux, MacOS or Windows.  We will be running two virtual machines:
+
+  1. Docker Server daemon
+  1. Lattice itself
+
+Go to https://www.virtualbox.org/wiki/Downloads and under "VirtualBox platform packages" find and download the installer for your platform
+
+Run the installer.
+
+
+## Install Vagrant
+
+Go to https://www.vagrantup.com/downloads.html, download the installer for your platform and run it.
+
+___Note___: On MacOS vagrant is installed in `/Applications` but is _not_ added to the execution path.,  You can add
+`/Applications/Vagrant/bin/` to your execution path in your shell's configuration file (for example in `.bashrc` or `.bash_profile`). Or explicitly invoke `/Applications/Vagrant/bin/vagrant up` in the setup below.
+
+
+## Docker Installation
+
+Docker runs client-server:
+  * Client: The `docker` command-line utility
+  * Server: A Linux background daemon (invoked using `boot2docker`).  Runs in a VM on Apple MacOS or MS Windows (hence needing VirtualBox)
+
+### Linux
+
+The docker server runs natively on Linux. so you can install it using `apt-get` or `yum` in the usual way.
+
+  * Ubuntu: https://docs.docker.com/installation/ubuntulinux/
+  * CentOS: https://docs.docker.com/installation/centos/
+  * Other: There are many other supported Linux platforms. Go to the Docker homepage https://docs.docker.com/ and
+choose the "Installation" menu.   Select the right Linux for you and follow the instructions.
+
+### MacOS
+
+The easiest way to install is to use the Homebrew facility:
+
+```
+   > brew update
+   > brew install docker
+   > brew install boot2docker
+```
+
+Alternatively download the installer package from here: https://github.com/boot2docker/osx-installer/releases/latest
+then refer to https://docs.docker.com/installation/mac/ for installation details.
+
+### Windows
+
+Download the installer from https://github.com/boot2docker/windows-installer/releases/latest and run it.
+
+For full details see: https://docs.docker.com/installation/windows/
+
+As per the instructions, run "Boot2Docker Start" from "Start Menu" - "Docker".
+
+## Docker Setup
+
+Run the following:
+
+```
+  > docker --version
+  > boot2docker version
+```
+
+The `boot2docker` utility runs the Docker server. It needs initialising (you only have to do this once):
+
+```
+  > boot2docker init
+```
+
+To run the server:
+
+```
+  > boot2docker up
+```
+
+Once it's running, it should tell you to set some environment variables.  On MacOS/Linux it will be something like this:
+
+```
+  > export DOCKER_HOST=tcp://192.168.xxx.xxx:2376
+  > export DOCKER_CERT_PATH=/Users/your-name/.boot2docker/certs/boot2docker-vm
+  > export DOCKER_TLS_VERIFY=1
+```
+
+You might like to set these permanently:
+
+  * MacOS/Linux: Add to your shell configuration file (for example to `.bashrc` or `.bash_profile`)
+  * Windows: Add to your system environment variables (right click `My Computer` > `Properties` > `Advanced system settings` > `Environment Variables`)
+
+Check things are working, run:
+
+```
+  > docker info
+```
+
+We will need to know the IP address the Docker VM is running on (remember this):
+
+```
+  > boot2docker ip
+  192.168.59.103
+```
+
+## Sign Up to Docker Hub
+
+If you don't already have an account, you will need to sign up for one at `https://hub.docker.com`.
+
+
+## Lattice Installation
+
+Lattice will run as a virtual machine using VirtualBox and Vagrant (a facility for creating and configuring lightweight, protable VMs).
+
+It also needs a command-line utility `ltc` to interact with it.
+
+### Install Lattice VM
+
+Lattice is at Github, so setup is easiest if you have `git` installed.  (Alternatively, instead of using `git clone`, go to https://github.com/cloudfoundry-incubator/lattice in your browser, click on Releases and click Latest Release. Scroll down and download the source code as a Zip, and unpack somewhere convenient.)
+
+Run the following (the last step takes a while):
+
+```
+  > git clone git@github.com:cloudfoundry-incubator/lattice.git  # or download a Zip and unpack
+  > cd lattice
+  > git checkout <VERSION>                                       # see below for version
+  > vagrant up --provider virtualbox                             # patience - takes several minutes to run
+```
+
+The latest version of Lattice can be found at the bottom of the Lattice home page: http://lattice.cf/.  At the time of writing it is v0.2.3 (so substitute `git checkout v0.2.3` in the command above)
+
+In the current directory you will find a file called `Vagrantfile` which uses Vagrant to configure a VM (in this case a VM running Lattice).  The VM runs when you invoke `vagrant up`.
+
+The last line of output from `vagrant up` above is something like this:
+
+```
+==> default: Lattice is now installed and running. You may target it with the Lattice cli via: ltc target 192.168.11.11.xip.io
+```
+
+Remember this `xip.io` URL.
+
+#### Troubleshooting
+
+If you get this error, your VirtualBox installation is out of date or corrupted (try installing VirtualBox again):
+
+```
+VBoxManage: error: VBoxNetAdpCtl: Error while adding new interface: failed to open /dev/vboxnetctl: No such file or directory
+```
+
+### Install ltc Utility
+
+Finally you need the `ltc` utility.  This allows applications to be deployed to Lattice (equivalent to `cf` for Cloud Foundry).
+
+You will need to go to https://github.com/cloudfoundry-incubator/lattice/tree/master/ltc and in the Setup section find the Release for your platform and download it - a single executable.
+
+Once it is downloaded, you then need to put it somewhere on your path, for example `/usr/local/bin`.
+
+
+
+___Windows___
+
+Because there is no `ltc` utility for Windows, you will require a Linux VM running in VirtualBox or VMware Workstation.
+
+
+___Linux___
+
+```
+  > sudo wget https://lattice.s3.amazonaws.com/releases/latest/linux-amd64/ltc -O /usr/local/bin/ltc
+  > sudo chmod +x /usr/local/bin/ltc
+```
+
+___MacOS___
+```
+  > sudo wget https://lattice.s3.amazonaws.com/releases/latest/darwin-amd64/ltc -O /usr/local/bin/ltc
+  > sudo chmod +x /usr/local/bin/ltc
+```
+
+You should now be able to run:
+
+```
+  > ltc --version
+  ltc version v0.2.3
+
+```
+
+To use lattice, we need to tell ltc where to find it:
+
+```
+   > ltc target <lattice-url>
+```
+
+The `lattice-url` was provided by the last line of output when Lattice booted.  In the output above it was `192.168.11.11.xip.io` so you would run `ltc target 192.168.11.11.xip.io`.
+
+For a full list of `ltc` commands and options, see http://lattice.cf/docs/ltc.
+
+You are now ready to use Lattice to run an application.
+
+#### Troubleshooting
+
+If you've switched networks from the time you installed the Lattice VM, you may see the following error when running `ltc` commands:
+
+```
+Error connecting to the receptor. Make sure your lattice target is set, and that lattice is up and running.
+	Underlying error: Get http://receptor.192.168.11.11.xip.io/v1/desired_lrps: dial tcp: i/o timeout
+```
+
+If that's the case, you can avoid this in the future by installing `dnsmasq` and following the instructions at https://github.com/cloudfoundry-incubator/lattice#troubleshooting.

@@ -2,7 +2,7 @@
 
 To push an application to Lattice, it must be packaged as a Docker application.
 
-## Start Docker and Lattice
+## Start Lattice
 
  . Ensure ltc is available - run `ltc -version`.
  . Check VirtualBox to make sure the Lattice VM is running.
@@ -10,48 +10,7 @@ To push an application to Lattice, it must be packaged as a Docker application.
 
 All the setup instructions are in link:install.adoc[Installation Guide].
 
-## Create a Docker Application
-
-We will use the application from the _Spring Boot with Docker_ Getting Started guide:
-https://spring.io/guides/gs/spring-boot-docker/
-
-This is a simple application using Spring Boot and Spring Cloud.
-
-Pull the code from github and go straight to the solution directory:
-
-```
-  > git clone https://github.com/spring-guides/gs-spring-boot-docker.git
-  > cd gs-spring-boot-docker/complete
-```
-
-__Note:__ If you would like to know how this application works, feel free to go through the guide and follow the steps.
-
-Make sure you have the DOCKER enviroment variables set:
-
-```
-  > env | grep DOCKER
-```
-
 If they aren't set refer to the link:install.adoc#docker-setup[Installation Guide].
-
-Remember the DOCKER_HOST URL, you will need the IP address soon (it will be something like
-`DOCKER_HOST=tcp://192.168.59.103:2376`)
-
-## Build the Application
-
-### Build Using Maven
-
-We need to edit the `pom.xml` to change the `docker.image.prefix` property from `springio` (since you re not a member of
-the `springio` organization at Dockerhub), to your Docker Hub username (<yourid>).
-
-Now run
-
-```
-$ mvn package docker:build
-```
-
-Note that the Maven build currently fails on Windows.
-
 
 
 ## Exploring `ltc` Commands

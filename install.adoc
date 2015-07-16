@@ -126,7 +126,7 @@ Lattice will run as a virtual machine using VirtualBox and Vagrant (a facility f
 
 It also needs a command-line utility `ltc` to interact with it.
 
-### Install Lattice VM
+### Deploy Lattice on a single VM with Vagrant
 
 Lattice is at Github, so setup is easiest if you have `git` installed.  (Alternatively, instead of using `git clone`, go to https://github.com/cloudfoundry-incubator/lattice in your browser, click on Releases and click Latest Release. Scroll down and download the source code as a Zip, and unpack somewhere convenient.)
 

@@ -1,0 +1,220 @@
+# Push Your First Application
+
+To push an application to Lattice, it must be packaged as a Docker application.
+
+## Start Docker and Lattice
+
+ . Ensure ltc is available - run `ltc -version`.
+ . Check VirtualBox to make sure the Lattice VM is running.
+ .. To run Lattice, go to wherever you cloned lattice from github and run `vagrant up`.
+
+All the setup instructions are in link:install.adoc[Installation Guide].
+
+## Create a Docker Application
+
+We will use the application from the _Spring Boot with Docker_ Getting Started guide:
+https://spring.io/guides/gs/spring-boot-docker/
+
+This is a simple application using Spring Boot and Spring Cloud.
+
+Pull the code from github and go straight to the solution directory:
+
+```
+  > git clone https://github.com/spring-guides/gs-spring-boot-docker.git
+  > cd gs-spring-boot-docker/complete
+```
+
+__Note:__ If you would like to know how this application works, feel free to go through the guide and follow the steps.
+
+Make sure you have the DOCKER enviroment variables set:
+
+```
+  > env | grep DOCKER
+```
+
+If they aren't set refer to the link:install.adoc#docker-setup[Installation Guide].
+
+Remember the DOCKER_HOST URL, you will need the IP address soon (it will be something like
+`DOCKER_HOST=tcp://192.168.59.103:2376`)
+
+## Build the Application
+
+### Build Using Maven
+
+We need to edit the `pom.xml` to change the `docker.image.prefix` property from `springio` (since you re not a member of
+the `springio` organization at Dockerhub), to your Docker Hub username (<yourid>).
+
+Now run
+
+```
+$ mvn package docker:build
+```
+
+Note that the Maven build currently fails on Windows.
+
+### Build Using Gradle
+
+If you prefer to build using Gradle, you need to edit the `build.gradle` file to change the Docker group.  Scanning the
+file you should find:
+
+```
+// This is used as the docker image prefix (org)
+group = 'gregturn'
+```
+
+You need to use your Docker username from Docker Hub.
+
+At this point we do not wish to push the application to Dockerhub, as we will test it locally. So look for the
+`buildDocker` task and set `push = false`.  The code looks like this:
+
+```
+// tag::task[]
+task buildDocker(type: Docker, dependsOn: build) {
+  push = true
+  applicationName = jar.baseName
+  dockerfile = file('src/main/docker/Dockerfile')
+  doFirst {
+    copy {
+      from jar
+      into stageDir
+    }
+  }
+}
+// end::task[]
+```
+
+Save and quit `build.gradle` and run:
+
+```
+./gradlew build buildDocker
+```
+
+The build steps above take a long time as they require downloading many dependencies for Maven/Gradle and software for
+the Docker build too.
+
+## Run the Application Locally
+
+Once the app has built, run it by typing (substituting <yourid> accordingly):
+
+`docker run -p 8080:8080 -t <yourid>/gs-spring-boot-docker`
+
+The `-p` command maps port 8080 on the Docker application (which is running Tomcat) to port 8080 on the Docker VM.  (if you are
+running natively on Linux, this is simply 8080 on localhost).
+
+From the `env` command above we know Docker is running on host `192.168.59.103`.  So go to the browser and enter
+`http://192.168.59.103:8080`.  You should get a white page with the text "Hello Docker World".
+
+You can check the app is running by entering `docker ps`.
+
+```
+C:\Users\dbuchko>docker ps
+CONTAINER ID        IMAGE                                  COMMAND                CREATED             STATUS              PORTS                    NAMES
+1a6630d77d99        <yourid>/gs-spring-boot-docker:latest  "java -Djava.securit   4 minutes ago       Up 4 minutes        0.0.0.0:8080->8080/tcp   hopeful_mayer
+```
+Shut down the app by stopping the container, using `docker stop <container id>|<name>`.
+
+## Push the Image to Docker Hub
+
+For simplicity, we will have lattice pull the image from Docker Hub.  If you want to know how to pull from a private Docker registry, please refer to http://lattice.cf/docs/private-docker-registry/.
+
+So we have to push our image up to Docker Hub:
+
+```
+docker push <yourid>/gs-spring-boot-docker
+```
+
+This will take a bit of time, so now would be a good time to go get a refill on that refreshment.
+
+
+## Push to Lattice
+
+Now we have a running Docker application, let's push it to Lattice.
+
+```
+ltc create spring-boot-docker <yourid>/gs-spring-boot-docker
+```
+You may get a warning that Lattice timed out waiting for the container to come up.
+As per the message, use the `ltc logs spring-boot-docker` and `ltc status spring-boot-docker`
+commands to monitor progress of the deployment.  If the app still does not start, take a look
+at the troubleshooting documentation found at http://lattice.cf/docs/troubleshooting.
+
+Once your app is running, enter the URL output from `ltc` into your browser for verification (eg. http://spring-boot-docker.<lattice-url>).
+
+## Push to PWS
+
+Now create a manifest file in the `complete` directory:
+
+```
+---
+applications:
+- name: <your-initials>-spring-boot-docker
+  path: target/gs-spring-boot-docker-0.1.0.jar
+```
+
+Login and push your app to PWS.  Test your app by hitting it's URL http://<your-initials>-spring-boot-docker.cfapps.io/.
+
+You've just seen how you can take a simple application, package it and run it first locally in Lattice, and then push the exact same application to PCF!
+
+
+## Exploring `ltc` Commands
+
+Enter `ltc help` for a list of commands you can use to manage your apps.
+For example, get a list of all apps using `ltc list`, or see the status of an app using the `ltc status <app-name>` command.
+
+Open another terminal window and tail the logs using the `ltc logs` command.
+
+
+
+## Scaling Your App
+
+A more interesting application is this one, which we will scale to 3 instances (just like we can on Cloud Foundry)
+
+```
+ltc create spring-cloud-lattice-sample springcloud/spring-cloud-lattice-sample
+ltc scale spring-cloud-lattice-sample 3
+```
+
+Go to http://spring-cloud-lattice-sample.<lattice-url>?service=spring-cloud-lattice-sample and verify you
+can see the JSON service record. Refresh the browser multiple times notice how the uri attribute rotates.
+
+And here http://spring-cloud-lattice-sample.<lattice-url>/me to see a pared down record that also rotates the uri.
+
+## Using X-Ray
+
+Now that you've got a couple apps running in Lattice, let's use X-Ray to visualize the apps.  Navigate to http://xray.cfapps.io.
+For the Receptor URL, enter http://user:pass@receptor.<lattice-url>.
+
+X-Ray will display a single row showing colour-coded blocks indicating each instance of each deployed app.  Since
+your installation consists of only a single cell, only 1 row is displayed.
+
+Switch back to your terminal window and experiment with scaling the number of instances for each of your apps.
+Note how X-Ray shows the changes in real-time, by adding or removing the coloured block indicators.
+
+
+## Crash Recovery Demo
+
+Install the following Lattice demonstration application:
+
+`ltc create lattice-app cloudfoundry/lattice-app`
+
+Scale the app to 2 instances, and with viewing X-Ray in the background, kill the instance by appending `exit` to the URI:
+
+`http://lattice-app.<lattice-url>/exit`
+
+Observe how the app gets restarted.  Once you've finished experimenting, remove the app.
+
+
+## Start an Instance of Redis
+
+You can also install pre-packaged Docker images, such as MySQL, Redis, and RabbitMQ.  See http://lattice.cf/docs/docker-image-examples/.
+Go ahead and install an instance of Redis.
+
+`ltc create redis redis -r`
+
+You can see the port mapping by running the `ltc status redis` command.
+
+
+## Finishing Up
+
+  * To stop Lattice: vagrant halt
+

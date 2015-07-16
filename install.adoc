@@ -153,7 +153,7 @@ Remember this `xip.io` URL.
 
 ## Deploy Lattice in a Cluster with Terraform
 
-The previous section describe a local deployment of Lattice on a single VM with Vagrant. A scalable cluster deployment of Lattice can be launched with Terraform. We currently support link:www.google.ca[AWS] (https://github.com/cloudfoundry-incubator/lattice/blob/master/terraform/aws/README.md), DigitalOcean (https://github.com/cloudfoundry-incubator/lattice/blob/master/terraform/digitalocean/README.md), Google Cloud (https://github.com/cloudfoundry-incubator/lattice/blob/master/terraform/google/README.md) and Openstack (https://github.com/cloudfoundry-incubator/lattice/blob/master/terraform/openstack/README.md).
+The previous section describe a local deployment of Lattice on a single VM with Vagrant. A scalable cluster deployment of Lattice can be launched with Terraform. We currently support link:http://www.google.ca[AWS] (https://github.com/cloudfoundry-incubator/lattice/blob/master/terraform/aws/README.md), DigitalOcean (https://github.com/cloudfoundry-incubator/lattice/blob/master/terraform/digitalocean/README.md), Google Cloud (https://github.com/cloudfoundry-incubator/lattice/blob/master/terraform/google/README.md) and Openstack (https://github.com/cloudfoundry-incubator/lattice/blob/master/terraform/openstack/README.md).
 
 #### Troubleshooting
 

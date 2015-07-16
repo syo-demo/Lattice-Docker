@@ -151,6 +151,10 @@ The last line of output from `vagrant up` above is something like this:
 
 Remember this `xip.io` URL.
 
+## Deploy Lattice in a Cluster with Terraform
+
+A scalable cluster deployment of Lattice can be launched with Terraform. We currently support AWS, DigitalOcean, Google Cloud and Openstack.
+
 #### Troubleshooting
 
 If you get this error, your VirtualBox installation is out of date or corrupted (try installing VirtualBox again):
